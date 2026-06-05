@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block title %}{{ user.nome }} — BookHub{% endblock %}
+
+{% block content %}
+<div class="container page-container">
+
+  <!-- PERFIL HEADER -->
+  <div class="profile-header">
+    <div class="profile-avatar">{{ user.nome[0].upper() }}</div>
+    <div class="profile-info">
+      <h1 class="profile-name">{{ user.nome }}</h1>
+      <p class="profile-since">Leitor desde {{ user.data_cadastro.strftime('%B de %Y') }}</p>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <span class="stat-card__value">{{ stats.total_reviews }}</span>
+      <span class="stat-card__label">Avaliações</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-card__value">
+        {% if stats.total_reviews > 0 %}★ {{ stats.media_nota }}{% else %}—{% endif %}
+      </span>
+      <span class="stat-card__label">Nota média</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-card__value">{{ stats.lendo }}</span>
+      <span class="stat-card__label">Lendo agora</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-card__value">{{ stats.concluidos }}</span>
+      <span class="stat-card__label">Concluídos</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-card__value">{{ stats.quero_ler }}</span>
+      <span class="stat-card__label">Quero Ler</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-card__value">{{ stats.abandonados }}</span>
+      <span class="stat-card__label">Abandonados</span>
+    </div>
+  </div>
+
+  <!-- ABAS -->
+  <div class="profile-tabs">
+    <a href="?aba=avaliacoes" class="profile-tab {% if aba == 'avaliacoes' %}profile-tab--active{% endif %}">
+      Avaliações ({{ stats.total_reviews }})
+    </a>
+    <a href="?aba=lendo" class="profile-tab {% if aba == 'lendo' %}profile-tab--active{% endif %}">
+      Lendo ({{ stats.lendo }})
+    </a>
+    <a href="?aba=quero_ler" class="profile-tab {% if aba == 'quero_ler' %}profile-tab--active{% endif %}">
+      Quero Ler ({{ stats.quero_ler }})
+    </a>
+    <a href="?aba=concluidos" class="profile-tab {% if aba == 'concluidos' %}profile-tab--active{% endif %}">
+      Concluídos ({{ stats.concluidos }})
+    </a>
+    <a href="?aba=abandonados" class="profile-tab {% if aba == 'abandonados' %}profile-tab--active{% endif %}">
+      Abandonados ({{ stats.abandonados }})
+    </a>
+  </div>
+
+  <!-- CONTEÚDO DAS ABAS -->
+  <div class="profile-content">
+
+    {% if aba == 'avaliacoes' %}
+      {% if reviews %}
+        <div class="reviews-list">
+          {% for review, book in reviews %}
+          <div class="review-item">
+            <a href="{{ url_for('livro', google_id=book.google_books_id) }}" class="review-item__book">
+              {% if book.capa %}
+                <img src="{{ book.capa }}" alt="{{ book.titulo }}" />
+              {% else %}
+                <div class="review-item__no-cover">📚</div>
+              {% endif %}
+              <div>
+                <strong>{{ book.titulo }}</strong>
+                <small>{{ book.autor }}</small>
+              </div>
+            </a>
+            <div class="review-item__stars">
+              {% for i in range(1, 6) %}
+                <span class="star {% if i <= review.nota %}star--on{% endif %}">★</span>
+              {% endfor %}
+            </div>
+            {% if review.comentario %}
+              <p class="review-item__text">{{ review.comentario }}</p>
+            {% endif %}
+            <time class="review-item__date">{{ review.data.strftime('%d/%m/%Y') }}</time>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty-state">
+          <span class="empty-state__icon">⭐</span>
+          <p>Nenhuma avaliação ainda.</p>
+          <a href="{{ url_for('pesquisa') }}" class="btn btn--primary">Descobrir livros</a>
+        </div>
+      {% endif %}
+
+    {% elif aba == 'lendo' %}
+      {% set lista = lendo %}
+      {% include '_lista_livros.html' %}
+
+    {% elif aba == 'quero_ler' %}
+      {% set lista = quero_ler %}
+      {% include '_lista_livros.html' %}
+
+    {% elif aba == 'concluidos' %}
+      {% set lista = concluidos %}
+      {% include '_lista_livros.html' %}
+
+    {% elif aba == 'abandonados' %}
+      {% set lista = abandonados %}
+      {% include '_lista_livros.html' %}
+
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

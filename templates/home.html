@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block title %}BookHub — Sua estante digital{% endblock %}
+
+{% block content %}
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <div class="hero-badge">✦ Descubra. Avalie. Compartilhe.</div>
+    <h1 class="hero-title">
+      Sua próxima<br />
+      <em>grande leitura</em><br />
+      começa aqui.
+    </h1>
+    <p class="hero-subtitle">
+      Organize sua estante, escreva resenhas e descubra livros recomendados pela comunidade.
+    </p>
+    <form action="{{ url_for('pesquisa') }}" method="GET" class="hero-search">
+      <input type="text" name="q" placeholder="Buscar por título, autor ou ISBN…" />
+      <button type="submit">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        Buscar
+      </button>
+    </form>
+    {% if not current_user.is_authenticated %}
+    <div class="hero-cta">
+      <a href="{{ url_for('cadastro') }}" class="btn btn--primary btn--lg">Criar conta grátis</a>
+      <a href="{{ url_for('login') }}" class="btn btn--ghost btn--lg">Já tenho conta</a>
+    </div>
+    {% endif %}
+  </div>
+  <div class="hero-visual">
+    <div class="hero-books">
+      <div class="hero-book hero-book--1">📖</div>
+      <div class="hero-book hero-book--2">📚</div>
+      <div class="hero-book hero-book--3">🔖</div>
+    </div>
+  </div>
+</section>
+
+<!-- LIVROS POPULARES -->
+{% if livros_populares %}
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Mais Avaliados</h2>
+      <a href="{{ url_for('ranking') }}" class="section-link">Ver ranking completo →</a>
+    </div>
+    <div class="books-grid">
+      {% for book, media, total in livros_populares %}
+      <a href="{{ url_for('livro', google_id=book.google_books_id) }}" class="book-card">
+        <div class="book-card__cover">
+          {% if book.capa %}
+            <img src="{{ book.capa }}" alt="{{ book.titulo }}" loading="lazy" />
+          {% else %}
+            <div class="book-card__no-cover">📚</div>
+          {% endif %}
+          <div class="book-card__overlay">
+            <span class="book-card__rating">★ {{ '%.1f'|format(media) }}</span>
+          </div>
+        </div>
+        <div class="book-card__info">
+          <h3 class="book-card__title">{{ book.titulo[:45] }}{% if book.titulo|length > 45 %}…{% endif %}</h3>
+          <p class="book-card__author">{{ book.autor }}</p>
+          <div class="book-card__meta">
+            <span class="stars-mini">
+              {% for i in range(1, 6) %}
+                <span class="star {% if i <= media|round %}star--on{% endif %}">★</span>
+              {% endfor %}
+            </span>
+            <span class="book-card__count">{{ total }} avaliações</span>
+          </div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ÚLTIMAS RESENHAS -->
+{% if ultimas_reviews %}
+<section class="section section--alt">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Últimas Resenhas</h2>
+      <span class="section-badge">Da comunidade</span>
+    </div>
+    <div class="reviews-grid">
+      {% for review, book, user in ultimas_reviews %}
+      <div class="review-card">
+        <div class="review-card__book">
+          {% if book.capa %}
+            <img src="{{ book.capa }}" alt="{{ book.titulo }}" />
+          {% else %}
+            <div class="review-card__no-cover">📚</div>
+          {% endif %}
+          <div class="review-card__book-info">
+            <a href="{{ url_for('livro', google_id=book.google_books_id) }}" class="review-card__title">
+              {{ book.titulo[:40] }}{% if book.titulo|length > 40 %}…{% endif %}
+            </a>
+            <p class="review-card__author">{{ book.autor }}</p>
+          </div>
+        </div>
+        <div class="review-card__rating">
+          {% for i in range(1, 6) %}
+            <span class="star {% if i <= review.nota %}star--on{% endif %}">★</span>
+          {% endfor %}
+        </div>
+        {% if review.comentario %}
+        <p class="review-card__comment">
+          "{{ review.comentario[:120] }}{% if review.comentario|length > 120 %}…{% endif %}"
+        </p>
+        {% endif %}
+        <div class="review-card__footer">
+          <a href="{{ url_for('perfil', user_id=user.id) }}" class="review-card__user">
+            <span class="avatar-mini">{{ user.nome[0].upper() }}</span>
+            <span>{{ user.nome.split()[0] }}</span>
+          </a>
+          <time class="review-card__date">{{ review.data.strftime('%d/%m/%Y') }}</time>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- CTA CADASTRO -->
+{% if not current_user.is_authenticated %}
+<section class="section cta-section">
+  <div class="container">
+    <div class="cta-box">
+      <h2>Comece sua jornada literária</h2>
+      <p>Crie sua conta gratuita e junte-se a centenas de leitores.</p>
+      <a href="{{ url_for('cadastro') }}" class="btn btn--primary btn--lg">Criar conta grátis</a>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% endblock %}

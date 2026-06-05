@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Ranking de Livros — BookHub{% endblock %}
+
+{% block content %}
+<div class="container page-container">
+
+  <div class="section-header">
+    <h1 class="page-title">🏆 Ranking BookHub</h1>
+    <p class="page-subtitle">Os livros mais bem avaliados pela nossa comunidade</p>
+  </div>
+
+  {% if livros_ranking %}
+
+    <!-- TOP 3 em destaque -->
+    {% if livros_ranking|length >= 3 %}
+    <div class="top3-grid">
+      {% for book, media, total in livros_ranking[:3] %}
+      <a href="{{ url_for('livro', google_id=book.google_books_id) }}" class="top3-card top3-card--{{ loop.index }}">
+        <div class="top3-badge">
+          {% if loop.index == 1 %}🥇{% elif loop.index == 2 %}🥈{% else %}🥉{% endif %}
+        </div>
+        <div class="top3-rank">#{{ loop.index }}</div>
+        <div class="top3-cover">
+          {% if book.capa %}
+            <img src="{{ book.capa }}" alt="{{ book.titulo }}" />
+          {% else %}
+            <div class="top3-no-cover">📚</div>
+          {% endif %}
+        </div>
+        <div class="top3-info">
+          <h3>{{ book.titulo }}</h3>
+          <p>{{ book.autor }}</p>
+          <div class="top3-rating">
+            <span class="top3-media">★ {{ '%.1f'|format(media) }}</span>
+            <span class="top3-count">{{ total }} avaliações</span>
+          </div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Lista completa -->
+    <div class="ranking-table">
+      <div class="ranking-table__header">
+        <span>#</span>
+        <span>Livro</span>
+        <span>Autor</span>
+        <span>Nota</span>
+        <span>Avaliações</span>
+      </div>
+
+      {% for book, media, total in livros_ranking %}
+      <a href="{{ url_for('livro', google_id=book.google_books_id) }}" class="ranking-row {% if loop.index <= 3 %}ranking-row--top{% endif %}">
+        <span class="ranking-row__pos">
+          {% if loop.index == 1 %}🥇
+          {% elif loop.index == 2 %}🥈
+          {% elif loop.index == 3 %}🥉
+          {% else %}{{ loop.index }}{% endif %}
+        </span>
+        <div class="ranking-row__book">
+          {% if book.capa %}
+            <img src="{{ book.capa }}" alt="{{ book.titulo }}" />
+          {% else %}
+            <div class="ranking-row__no-cover">📚</div>
+          {% endif %}
+          <span>{{ book.titulo[:50] }}{% if book.titulo|length > 50 %}…{% endif %}</span>
+        </div>
+        <span class="ranking-row__author">{{ book.autor[:30] }}{% if book.autor|length > 30 %}…{% endif %}</span>
+        <span class="ranking-row__media">
+          <span class="star star--on">★</span> {{ '%.1f'|format(media) }}
+        </span>
+        <span class="ranking-row__count">{{ total }}</span>
+      </a>
+      {% endfor %}
+    </div>
+
+  {% else %}
+    <div class="empty-state">
+      <span class="empty-state__icon">🏆</span>
+      <h2>Ranking ainda vazio</h2>
+      <p>Seja o primeiro a avaliar um livro e aparecer no ranking!</p>
+      <a href="{{ url_for('pesquisa') }}" class="btn btn--primary">Descobrir livros</a>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

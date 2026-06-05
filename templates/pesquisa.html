@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}{% if query %}{{ query }} — {% endif %}Pesquisa — BookHub{% endblock %}
+
+{% block content %}
+<div class="container page-container">
+
+  <div class="search-header">
+    <h1 class="page-title">
+      {% if query %}
+        Resultados para <em>"{{ query }}"</em>
+      {% else %}
+        Pesquisar Livros
+      {% endif %}
+    </h1>
+  </div>
+
+  <form action="{{ url_for('pesquisa') }}" method="GET" class="search-form-full">
+    <div class="search-input-wrap">
+      <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input
+        type="text"
+        name="q"
+        value="{{ query }}"
+        placeholder="Buscar por título, autor ou ISBN…"
+        autofocus
+        autocomplete="off"
+      />
+      <button type="submit" class="btn btn--primary">Buscar</button>
+    </div>
+  </form>
+
+  <!-- AVISO: sem API Key -->
+  {% if sem_api_key %}
+  <div class="api-warning">
+    <div class="api-warning__icon">⚠️</div>
+    <div class="api-warning__text">
+      <strong>Google Books API Key não configurada</strong>
+      <p>
+        Sem a key, não é possível buscar novos livros. Veja como configurar:
+        <br>
+        1. Acesse <a href="https://console.cloud.google.com" target="_blank" rel="noopener">console.cloud.google.com</a>
+        <br>
+        2. Crie um projeto → Ative a <strong>Books API</strong>
+        <br>
+        3. Gere uma <strong>API Key</strong> em "Credenciais"
+        <br>
+        4. Adicione no seu <code>.env</code>: <code>GOOGLE_BOOKS_API_KEY=sua_chave_aqui</code>
+        <br>
+        5. Reinicie o servidor (<kbd>Ctrl+C</kbd> → <code>python app.py</code>)
+      </p>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if query %}
+    {% if resultados %}
+      <div class="search-meta">
+        <p class="search-count">{{ resultados|length }} resultado{% if resultados|length != 1 %}s{% endif %} encontrado{% if resultados|length != 1 %}s{% endif %}</p>
+        {% if fonte == "local" and not sem_api_key %}
+          <span class="fonte-badge fonte-badge--local">📦 Resultados do banco local</span>
+        {% elif fonte == "google" %}
+          <span class="fonte-badge fonte-badge--google">🌐 Google Books</span>
+        {% endif %}
+      </div>
+
+      <div class="search-results">
+        {% for livro in resultados %}
+        <a href="{{ url_for('livro', google_id=livro.google_id) }}" class="search-result-card">
+          <div class="search-result-card__cover">
+            {% if livro.capa %}
+              <img src="{{ livro.capa }}" alt="{{ livro.titulo }}" loading="lazy" />
+            {% else %}
+              <div class="search-result-card__no-cover">📚</div>
+            {% endif %}
+          </div>
+          <div class="search-result-card__info">
+            <h3 class="search-result-card__title">{{ livro.titulo }}</h3>
+            <p class="search-result-card__author">{{ livro.autor }}</p>
+            {% if livro.ano %}<span class="search-result-card__year">{{ livro.ano }}</span>{% endif %}
+            {% if livro.descricao %}
+            <p class="search-result-card__desc">
+              {{ livro.descricao[:160] }}{% if livro.descricao|length > 160 %}…{% endif %}
+            </p>
+            {% endif %}
+          </div>
+          <div class="search-result-card__arrow">→</div>
+        </a>
+        {% endfor %}
+      </div>
+
+    {% else %}
+      <div class="empty-state">
+        <span class="empty-state__icon">🔍</span>
+        <h2>Nenhum livro encontrado</h2>
+        {% if sem_api_key %}
+          <p>Configure a API Key acima para buscar qualquer livro.</p>
+        {% else %}
+          <p>Tente outros termos de busca ou verifique a ortografia.</p>
+        {% endif %}
+      </div>
+    {% endif %}
+
+  {% else %}
+    <div class="search-suggestions">
+      <h2>Sugestões de busca</h2>
+      <div class="suggestion-tags">
+        <a href="{{ url_for('pesquisa', q='Harry Potter') }}" class="suggestion-tag">Harry Potter</a>
+        <a href="{{ url_for('pesquisa', q='Machado de Assis') }}" class="suggestion-tag">Machado de Assis</a>
+        <a href="{{ url_for('pesquisa', q='Clarice Lispector') }}" class="suggestion-tag">Clarice Lispector</a>
+        <a href="{{ url_for('pesquisa', q='Stephen King') }}" class="suggestion-tag">Stephen King</a>
+        <a href="{{ url_for('pesquisa', q='1984 George Orwell') }}" class="suggestion-tag">1984</a>
+        <a href="{{ url_for('pesquisa', q='Dom Casmurro') }}" class="suggestion-tag">Dom Casmurro</a>
+        <a href="{{ url_for('pesquisa', q='O Senhor dos Aneis') }}" class="suggestion-tag">O Senhor dos Anéis</a>
+        <a href="{{ url_for('pesquisa', q='Sapiens Harari') }}" class="suggestion-tag">Sapiens</a>
+      </div>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

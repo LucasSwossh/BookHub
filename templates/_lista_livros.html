@@ -1,0 +1,26 @@
+{% if lista %}
+  <div class="books-grid books-grid--profile">
+    {% for rs, book in lista %}
+    <a href="{{ url_for('livro', google_id=book.google_books_id) }}" class="book-card">
+      <div class="book-card__cover">
+        {% if book.capa %}
+          <img src="{{ book.capa }}" alt="{{ book.titulo }}" loading="lazy" />
+        {% else %}
+          <div class="book-card__no-cover">📚</div>
+        {% endif %}
+      </div>
+      <div class="book-card__info">
+        <h3 class="book-card__title">{{ book.titulo[:40] }}{% if book.titulo|length > 40 %}…{% endif %}</h3>
+        <p class="book-card__author">{{ book.autor }}</p>
+        {% if book.ano %}<span class="book-card__year">{{ book.ano }}</span>{% endif %}
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="empty-state">
+    <span class="empty-state__icon">📚</span>
+    <p>Nenhum livro nesta lista ainda.</p>
+    <a href="{{ url_for('pesquisa') }}" class="btn btn--primary">Descobrir livros</a>
+  </div>
+{% endif %}

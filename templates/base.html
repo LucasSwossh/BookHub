@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}BookHub{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  {% block head %}{% endblock %}
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a href="{{ url_for('home') }}" class="nav-logo">
+        <span class="logo-icon">📚</span>
+        <span class="logo-text">Book<span class="logo-accent">Hub</span></span>
+      </a>
+
+      <form action="{{ url_for('pesquisa') }}" method="GET" class="nav-search">
+        <input type="text" name="q" placeholder="Buscar livros, autores…" autocomplete="off" />
+        <button type="submit" aria-label="Pesquisar">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        </button>
+      </form>
+
+      <div class="nav-actions">
+        <a href="{{ url_for('ranking') }}" class="nav-link">Ranking</a>
+        {% if current_user.is_authenticated %}
+          <a href="{{ url_for('perfil', user_id=current_user.id) }}" class="nav-link nav-link--user">
+            <span class="avatar-mini">{{ current_user.nome[0].upper() }}</span>
+            {{ current_user.nome.split()[0] }}
+          </a>
+          <a href="{{ url_for('logout') }}" class="nav-link nav-link--subtle">Sair</a>
+        {% else %}
+          <a href="{{ url_for('login') }}" class="nav-link">Entrar</a>
+          <a href="{{ url_for('cadastro') }}" class="btn btn--primary btn--sm">Cadastrar</a>
+        {% endif %}
+      </div>
+
+      <button class="nav-toggle" id="navToggle" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div class="nav-mobile" id="navMobile">
+      <form action="{{ url_for('pesquisa') }}" method="GET" class="nav-mobile__search">
+        <input type="text" name="q" placeholder="Buscar livros…" />
+        <button type="submit">Buscar</button>
+      </form>
+      <a href="{{ url_for('ranking') }}">Ranking</a>
+      {% if current_user.is_authenticated %}
+        <a href="{{ url_for('perfil', user_id=current_user.id) }}">Meu Perfil</a>
+        <a href="{{ url_for('logout') }}">Sair</a>
+      {% else %}
+        <a href="{{ url_for('login') }}">Entrar</a>
+        <a href="{{ url_for('cadastro') }}">Cadastrar</a>
+      {% endif %}
+    </div>
+  </nav>
+
+  <!-- FLASH MESSAGES -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-container">
+        {% for category, message in messages %}
+          <div class="flash flash--{{ category }}">
+            <span>{{ message }}</span>
+            <button onclick="this.parentElement.remove()" aria-label="Fechar">✕</button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <!-- CONTENT -->
+  <main>{% block content %}{% endblock %}</main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <span class="logo-text">Book<span class="logo-accent">Hub</span></span>
+        <p>A rede social dos leitores</p>
+      </div>
+      <div class="footer-links">
+        <a href="{{ url_for('home') }}">Home</a>
+        <a href="{{ url_for('pesquisa') }}">Pesquisar</a>
+        <a href="{{ url_for('ranking') }}">Ranking</a>
+      </div>
+      <p class="footer-copy">© 2024 BookHub — Feito com ❤️ e muitos livros</p>
+    </div>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

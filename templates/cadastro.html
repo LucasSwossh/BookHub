@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Cadastro — BookHub{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+  <div class="auth-visual">
+    <div class="auth-visual__bg"></div>
+    <div class="auth-visual__content">
+      <div class="auth-quote">
+        <blockquote>"O livro é a maior invenção da humanidade."</blockquote>
+        <cite>— Monteiro Lobato</cite>
+      </div>
+    </div>
+  </div>
+
+  <div class="auth-form-side">
+    <div class="auth-form-wrap">
+      <a href="{{ url_for('home') }}" class="auth-logo">
+        Book<span class="logo-accent">Hub</span>
+      </a>
+      <h1 class="auth-title">Crie sua conta</h1>
+      <p class="auth-subtitle">Junte-se à comunidade de leitores</p>
+
+      <form method="POST" action="{{ url_for('cadastro') }}" class="form" novalidate>
+        <div class="form-group">
+          <label for="nome">Nome completo</label>
+          <input type="text" id="nome" name="nome" placeholder="Seu nome" required autocomplete="name" />
+        </div>
+
+        <div class="form-group">
+          <label for="email">E-mail</label>
+          <input type="email" id="email" name="email" placeholder="seu@email.com" required autocomplete="email" />
+        </div>
+
+        <div class="form-group">
+          <label for="senha">Senha</label>
+          <div class="input-password">
+            <input type="password" id="senha" name="senha" placeholder="Mínimo 6 caracteres" required autocomplete="new-password" />
+            <button type="button" class="toggle-password" data-target="senha">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <div class="password-strength" id="passwordStrength"></div>
+        </div>
+
+        <div class="form-group">
+          <label for="confirmar_senha">Confirmar senha</label>
+          <div class="input-password">
+            <input type="password" id="confirmar_senha" name="confirmar_senha" placeholder="Repita a senha" required autocomplete="new-password" />
+            <button type="button" class="toggle-password" data-target="confirmar_senha">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn--primary btn--full">Criar conta</button>
+      </form>
+
+      <p class="auth-switch">
+        Já tem conta?
+        <a href="{{ url_for('login') }}">Entrar</a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const senhaInput = document.getElementById('senha');
+const strengthBar = document.getElementById('passwordStrength');
+senhaInput.addEventListener('input', () => {
+  const v = senhaInput.value;
+  let strength = 0;
+  if (v.length >= 6) strength++;
+  if (v.length >= 10) strength++;
+  if (/[A-Z]/.test(v)) strength++;
+  if (/[0-9]/.test(v)) strength++;
+  if (/[^A-Za-z0-9]/.test(v)) strength++;
+  const labels = ['', 'Muito fraca', 'Fraca', 'Boa', 'Forte', 'Excelente'];
+  const classes = ['', 'weak', 'weak', 'fair', 'good', 'strong'];
+  strengthBar.textContent = v.length > 0 ? labels[strength] : '';
+  strengthBar.className = 'password-strength ' + (v.length > 0 ? classes[strength] : '');
+});
+</script>
+{% endblock %}
