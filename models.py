@@ -14,7 +14,7 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(150), unique=True, nullable=False)
     senha_hash = db.Column(db.String(256), nullable=False)
     data_cadastro = db.Column(db.DateTime, default=datetime.utcnow)
-    avatar_url = db.Column(db.String(500), nullable=True)
+    avatar_url = db.Column(db.Text, nullable=True)
 
     reviews = db.relationship("Review", backref="user", lazy="dynamic", cascade="all, delete-orphan")
     reading_statuses = db.relationship("ReadingStatus", backref="user", lazy="dynamic", cascade="all, delete-orphan")
@@ -55,14 +55,14 @@ class Book(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     google_books_id = db.Column(db.String(50), unique=True, nullable=False)
-    titulo = db.Column(db.String(300), nullable=False)
-    autor = db.Column(db.String(200), nullable=True)
-    capa = db.Column(db.String(500), nullable=True)
+    titulo = db.Column(db.Text, nullable=False)
+    autor = db.Column(db.Text, nullable=True)
+    capa = db.Column(db.Text, nullable=True)
     descricao = db.Column(db.Text, nullable=True)
     ano = db.Column(db.String(10), nullable=True)
     paginas = db.Column(db.Integer, nullable=True)
-    editora = db.Column(db.String(200), nullable=True)
-    categorias = db.Column(db.String(300), nullable=True)
+    editora = db.Column(db.Text, nullable=True)
+    categorias = db.Column(db.Text, nullable=True)
 
     reviews = db.relationship("Review", backref="book", lazy="dynamic", cascade="all, delete-orphan")
     reading_statuses = db.relationship("ReadingStatus", backref="book", lazy="dynamic", cascade="all, delete-orphan")
